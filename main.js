@@ -9,6 +9,9 @@ var chart1_cy = 400;
 d3.csv("Spotify-2000.csv", function (csv) {
   console.log(csv);
   for (var i = 0; i < csv.length; ++i) {
+    csv[i].bpm = Number(csv[i]["Beats Per Minute (BPM)"]);
+	  csv[i].Loudness = Number(csv[i]["Loudness (dB)"]);
+	  csv[i].Length = Number(csv[i]["Length (Duration)"]);
     csv[i].Danceability = Number(csv[i].Danceability);
     csv[i].Energy = Number(csv[i].Energy);
     csv[i].Liveness = Number(csv[i].Liveness);
@@ -20,7 +23,20 @@ d3.csv("Spotify-2000.csv", function (csv) {
 
 
   // Finding the extent of each value [min,max]
-  var danceExtent = d3.extent(csv, function(row) {
+
+  var bpmExtent = d3.extent(csv, function(row) {
+    return row.bpm;
+  });
+
+  var loudExtent = d3.extent(csv, function(row) {
+    return row.Loudness;
+  });
+
+  var lengthExtent = d3.extent(csv, function(row) {
+    return row.Length;
+  });
+
+ var danceExtent = d3.extent(csv, function(row) {
     return row.Danceability;
   });
 
@@ -42,7 +58,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 
   var speechExtent = d3.extent(csv, function(row) {
     return row.Speechiness;
-  });
+  }); 
 
   // --------------------------- SCALE SETUP -----------------------------
 
@@ -61,6 +77,9 @@ d3.csv("Spotify-2000.csv", function (csv) {
 
 
   // Scales for the different attribute axes
+  var bpmScale = d3.scaleLinear().domain(bpmExtent).range([0,rangeMax]);
+  var loudScale = d3.scaleLinear().domain(loudExtent).range([0,rangeMax]);
+  var lengthScale = d3.scaleLinear().domain(lengthExtent).range([0,rangeMax]);
   var danceScale = d3.scaleLinear().domain(danceExtent).range([0,rangeMax]);
   var energyScale = d3.scaleLinear().domain(energyExtent).range([0,rangeMax]);
   var liveScale = d3.scaleLinear().domain(liveExtent).range([0,rangeMax]);
@@ -78,7 +97,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
     return {"x": chart1_cx + x, "y": chart1_cy - y};
   }
 
-  var attributes = ["Danceability", "Energy", "Liveness", "Valence", "Acousticness", "Speechiness"];
+  var attributes = ["Beats Per Minute", "Loudness", "Length", "Danceability", "Energy", "Liveness", "Valence", "Acousticness", "Speechiness"];
   function drawAxes(labels, chart) {
     let lineWidth = (numRings * 2) + 3;
     for (var i = 0; i < labels.length; i++) {
