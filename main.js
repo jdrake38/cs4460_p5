@@ -105,11 +105,14 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.select("#chart1")
 		.append("svg:svg")
 		.attr("width", width)
-		.attr("height", height);
+    .attr("height", height);
+    
 	
 	// create group to hold everybody
 	radar = chart1.append("g")
-		.attr("transform", "translate(" + chart1_cx + ", " + chart1_cy + ")");
+    .attr("transform", "translate(" + chart1_cx + ", " + chart1_cy + ")");
+    
+  
 		
 	
 	// function to draw the axis them
@@ -185,8 +188,9 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.enter()
 		.append("path")
 			.attr("d", function(d) {return get_path(d);})
-      .attr("fill", function(d, i) { return c1_colors[i % c1_colors.length]})
-      .attr("opacity", 0.3);
+      //.attr("fill", function(d, i) { return c1_colors[i % c1_colors.length]})
+      .attr("fill", "green")
+      .attr("opacity", 0.1);
       
 
   // function getPathCoordinates(data_point){
