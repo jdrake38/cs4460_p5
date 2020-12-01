@@ -1,31 +1,14 @@
 body {
   font: 12px sans-serif;
 }
-.tick > line {
-	fill: none;
-	stroke: black;
-}
-.tick > text {
-	fill: black;
-}
-.selected {
-	stroke: magenta;
-	fill:magenta;
-}
-.selected2 {
-	stroke: orange;
-	fill:orange;
-}
-path.domain {
-	fill: none;
-	stroke-width: 2px;
-	stroke: black;
-}
-#wrapper {
-	clear:both;
-}
+
 #chart1 {
     float:left;
+}
+
+circle {
+	fill: none;
+	stroke: gray;
 }
 
 
