@@ -107,19 +107,73 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.attr("width", width)
     .attr("height", height);
     
+
 	
 	// create group to hold everybody
 	radar = chart1.append("g")
     .attr("transform", "translate(" + chart1_cx + ", " + chart1_cy + ")");
-    
   
+  var axes = chart1.append("g");
+    
 		
 	
 	// function to draw the axis them
 	// labels: attributes for which to draw axis
 	function drawAxes(labels) {
+
+    radar.append("g")
+        .selectAll(".line")
+        .data(graphAttributes)
+        .enter()
+        .append("line")
+				.attr("x1", 0)
+				.attr("y1", 0)
+				.attr("x2", function(d) {
+          let angle = get_angle(d);
+          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
+          return line_coordinate[0];
+        })
+				.attr("y2", function(d) {
+          let angle = get_angle(d);
+          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
+          return line_coordinate[1];
+        })
+				.attr("stroke","black");
+
+        radar.append("g")
+        .selectAll("#labels")
+        .data(graphAttributes)
+        .enter()
+        .append("text")
+        .attr('class', 'labels')
+				.attr("x", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          return label_coordinate[0];
+        })
+				.attr("y", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          return label_coordinate[1];
+        })
+				.style("text-anchor", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+					if (label_coordinate[0] < 0) {
+						return "end";
+					}	
+				})
+				// .style("dominant-baseline", function() {
+					// if (label_coordinate[1] > 0) {
+					    // return "hanging";	
+					// }
+				// })
+				.text(function(d) {
+          return d;
+        });
+
 	
-		for (var i = 0; i < labels.length; i++) {
+	/*	for (var i = 0; i < labels.length; i++) {
 			
 			// get attribute name, coordinates
 			let label = labels[i];
@@ -129,7 +183,10 @@ d3.csv("Spotify-2000.csv", function (csv) {
 			let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	  
 
 			//draw axis line
-			radar.append("line")
+      radar.append("line")
+        .selectAll(".line")
+        .data(graphAttributes)
+        .enter()
 				.attr("x1", 0)
 				.attr("y1", 0)
 				.attr("x2", line_coordinate[0])
@@ -151,7 +208,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 					// }
 				// })
 				.text(label);
-		}
+		} */
 	}
 	
 	drawAxes(graphAttributes);
@@ -220,9 +277,158 @@ d3.csv("Spotify-2000.csv", function (csv) {
   // }
 
 // ----------------------------------- BUTTON LOGIC ------------------------------------
-function checkAxes() {
-  document.getElementById("myCheck")
-}
+
+d3.select(filters)
+    .append('p')
+    .append('button')
+    .style("border", "1px solid black")
+    .text('Set Axes')
+    .on('click', function() {
+      let boxes = document.getElementsByTagName('input');
+      let selected = [];
+      for (var i = 0; i < boxes.length; i++) {
+        if (boxes[i].checked) {
+          selected.push(boxes[i].value);
+        }
+      }
+      graphAttributes = selected;
+      console.log(selected);
+
+      // MOVE SELECTED AXES
+      radar.selectAll('line')
+        .filter(function(d) {
+          for (var i = 0; i < graphAttributes.length; i++) {
+            if (d == graphAttributes[i]) {
+              return true;
+            }
+          }
+          return false;
+        })
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr("x2", function(d) {
+          let angle = get_angle(d);
+          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
+          return line_coordinate[0];
+        })
+				.attr("y2", function(d) {
+          let angle = get_angle(d);
+          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
+          return line_coordinate[1];
+        });
+
+        // REMOVE NOT SELECTED AXES
+        radar.selectAll('line')
+        .filter(function(d) {
+          for (var i = 0; i < graphAttributes.length; i++) {
+            if (d == graphAttributes[i]) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr("x2", 0)
+        .attr("y2", 0);
+        
+        // MOVE SELECTED LABELS
+        radar.selectAll('.labels')
+        .filter(function(d) {
+          for (var i = 0; i < graphAttributes.length; i++) {
+            if (d == graphAttributes[i]) {
+              return true;
+            }
+          }
+          return false;
+        })
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr("x", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          return label_coordinate[0];
+        })
+				.attr("y", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          return label_coordinate[1];
+        })
+				.style("text-anchor", function(d) {
+          let angle = get_angle(d);
+          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+					if (label_coordinate[0] < 0) {
+						return "end";
+					}	
+				})
+				// .style("dominant-baseline", function() {
+					// if (label_coordinate[1] > 0) {
+					    // return "hanging";	
+					// }
+				// })
+				.text(function(d) {
+          return d;
+        });
+
+        // REMOVE NOT SELECTED LABELS
+        radar.selectAll('.labels')
+        .filter(function(d) {
+          for (var i = 0; i < graphAttributes.length; i++) {
+            if (d == graphAttributes[i]) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .style('display', 'none');
+
+
+        /*radar.selectAll('line')
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr('x2', 0)
+        .attr('y2', 0);
+
+        radar.selectAll('path')
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr('opacity', 0); */
+      
+        //drawAxes(graphAttributes);
+    })
+
 
 }); // end of main function
 
