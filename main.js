@@ -219,7 +219,10 @@ d3.csv("Spotify-2000.csv", function (csv) {
     // .attr("opacity", 0.2);
   // }
 
-
+// ----------------------------------- BUTTON LOGIC ------------------------------------
+function checkAxes() {
+  document.getElementById("myCheck")
+}
 
 }); // end of main function
 
