@@ -39,6 +39,13 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	graphAttributes = ["bpm", "Loudness", "Length", "Danceability", "Energy", "Liveness", "Valence", "Acousticness", "Speechiness"];
   
   console.log("NUM DATA: " + csv.length);
+
+  // get the genres
+  var genres = Array.from(d3.map(csv, function(d) {
+    return d["Top Genre"];
+  }).keys()
+  );
+
 	
 	// ------------------------- FUN WITH FUNCTIONS ------------------------------- //
 	
@@ -72,7 +79,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	// turn an observation (row) into a path d attribute
 	get_path = function(data_point) {
 		var coordinates = [];
-		for (var i = 1; i < graphAttributes.length; i++) {
+		for (var i = 0; i < graphAttributes.length; i++) {
 			var attr = graphAttributes[i];
 			var angle = get_angle(attr);
 			coordinates.push(get_coordinate(attr, data_point[attr]));
@@ -417,31 +424,18 @@ d3.select(filters)
         .attr('d', function(d) {
           return get_path(d);
         });
-
-
-        /*radar.selectAll('line')
-        .transition()
-        .duration(function(d) {
-            return 800;
-        })
-        .delay(function(d) {
-           return 800;
-        })
-        .attr('x2', 0)
-        .attr('y2', 0);
-
-        radar.selectAll('path')
-        .transition()
-        .duration(function(d) {
-            return 800;
-        })
-        .delay(function(d) {
-           return 800;
-        })
-        .attr('opacity', 0); */
-      
-        //drawAxes(graphAttributes);
     })
+
+    // ----------------------------- SLIDER FUNCTIONS -------------------------
+    function popFilter() {
+      let value = d3.select("#slider").value;
+      console.log(value);
+    }
+
+    d3.select("#slider")
+      .attr('onchange', function() {
+        console.log("YEE");
+      });
 
 
 }); // end of main function

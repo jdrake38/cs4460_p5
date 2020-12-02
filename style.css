@@ -3,6 +3,10 @@ body {
   background-color: black;
 }
 
+h3 {
+  color: white;
+}
+
 .checkLabel {
   color: white;
 }
