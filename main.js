@@ -405,6 +405,18 @@ d3.select(filters)
         })
         .style('visibility', 'hidden');
 
+        radar.selectAll('path')
+        .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr('d', function(d) {
+          return get_path(d);
+        });
+
 
         /*radar.selectAll('line')
         .transition()
