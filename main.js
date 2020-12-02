@@ -5,7 +5,7 @@ var chart1_cx = width / 2;
 var chart1_cy = height / 2;
 var spokeLength = 300;
 var c1_colors = ["#66bd70","#65bc6f","#63bc6e","#62bb6e","#60ba6d","#5eb96c","#5db86b","#5bb86a","#5ab769","#58b668","#57b568","#56b467","#54b466","#53b365","#51b264","#50b164","#4eb063","#4daf62","#4caf61","#4aae61","#49ad60","#48ac5f","#46ab5e","#45aa5d","#44a95d","#42a85c","#41a75b","#40a75a","#3fa65a","#3ea559","#3ca458","#3ba357","#3aa257","#39a156","#38a055","#379f54","#369e54","#359d53","#349c52","#339b51","#329a50","#319950","#30984f","#2f974e","#2e964d","#2d954d","#2b944c","#2a934b","#29924a","#28914a","#279049","#268f48","#258f47","#248e47","#238d46","#228c45","#218b44","#208a43","#1f8943","#1e8842","#1d8741","#1c8640","#1b8540","#1a843f","#19833e","#18823d","#17813d","#16803c","#157f3b","#147e3a","#137d3a","#127c39","#117b38","#107a37","#107937","#0f7836","#0e7735","#0d7634","#0c7534","#0b7433","#0b7332","#0a7232","#097131","#087030","#086f2f","#076e2f","#066c2e","#066b2d","#056a2d","#05692c","#04682b","#04672b","#04662a","#03642a","#036329","#026228","#026128","#026027","#025e27","#015d26","#015c25","#015b25","#015a24","#015824","#015723","#005623","#005522","#005321","#005221","#005120","#005020","#004e1f","#004d1f","#004c1e","#004a1e","#00491d","#00481d","#00471c","#00451c","#00441b"]
-console.log("NUM COLORS: " + c1_colors.length);
+//console.log("NUM COLORS: " + c1_colors.length);
 
 var colors = [];
 for (var i = c1_colors.length-1; i >= 0; i--) {
@@ -49,7 +49,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
   );
 
   // The average data object of all the attributes
-  /*var avg = {
+ /* var avg = {
     bpm: 0,
     Loudness: 0,
     Length: 0,
@@ -59,16 +59,19 @@ d3.csv("Spotify-2000.csv", function (csv) {
     Valence: 0,
     Acousticness: 0,
     Speechiness: 0
-  }
+  } */
+
+  var avg = new Object();
 
   for (var a = 0; a < graphAttributes.length; a++) {
-    var attr = graphAttributes[a];
     var sum = 0;
     for (var i = 0; i < csv.length; i++) {
-      sum += csv[i][attr];
+      sum += ting[i][graphAttributes[a]];
     }
-    avg[attr] = sum / csv.length;
-  } */
+    avg[graphAttributes[a]] = sum / ting.length;
+  } 
+
+ // console.log(avg);
 
 	
 	// ------------------------- FUN WITH FUNCTIONS ------------------------------- //
@@ -113,7 +116,9 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		var coordinates = [];
 		for (var i = 0; i < graphAttributes.length; i++) {
 			var attr = graphAttributes[i];
-			var angle = get_angle(attr);
+      var angle = get_angle(attr);
+      //console.log("attr: " + attr);
+      //console.log("data_point[attr]: " + data_point[attr]);
 			coordinates.push(get_coordinate(attr, data_point[attr]));
 		}
 
@@ -281,7 +286,8 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	
 	// Add paths for each row
 	radar.append("g")
-		.selectAll("path")
+    .selectAll("path")
+    .attr('class', 'dataPath')
 		.data(csv)
 		.enter()
 		.append("path")
@@ -290,11 +296,14 @@ d3.csv("Spotify-2000.csv", function (csv) {
       //.attr("fill", "green")
       .attr("opacity", 0.4);
 
-    /*radar.append("path")
+    radar.append("path")
       .attr('class', 'avgPath')
-      .attr("d", function() {return get_path(avg);})
-      .style('stroke', 'lightgreen')
-      .style('fill', 'none');*/
+      .attr("d", function() {
+        console.log(avg);
+        return get_path(avg);
+      })
+      .style('stroke', 'darkgreen')
+      .style('fill', 'none');
       
 
   // function getPathCoordinates(data_point){
@@ -339,7 +348,7 @@ d3.select(filters)
         }
       }
       graphAttributes = selected;
-      console.log(selected);
+     // console.log(selected);
 
       // MOVE SELECTED AXES
       radar.selectAll('line')
@@ -456,7 +465,7 @@ d3.select(filters)
 		get_scales();
 		
 		// REDRAW
-        radar.selectAll('path')
+        radar.selectAll('.dataPath')
         .transition()
         .duration(function(d) {
             return 800;
@@ -469,7 +478,7 @@ d3.select(filters)
         });
 
       // draw average path
-     /* radar.select('.avgPath')
+      radar.select('.avgPath')
       .transition()
         .duration(function(d) {
             return 800;
@@ -477,19 +486,18 @@ d3.select(filters)
         .delay(function(d) {
            return 800;
         })
-      .attr("d", function() {return get_path(avg);}); */
+      .attr("d", function() {return get_path(avg);}); 
 
     })
 
     // ----------------------------- SLIDER FUNCTIONS -------------------------
     function popFilter() {
       let value = d3.select("#slider").value;
-      console.log(value);
+      //console.log(value);
     }
 
     d3.select("#slider")
       .attr('onchange', function() {
-        console.log("YEE");
       });
 
 
