@@ -21,7 +21,11 @@ h3 {
 }
 
 #chart1 {
-    float:left;
+    float: left;
+}
+
+#filters {
+	float: left;
 }
 
 circle {

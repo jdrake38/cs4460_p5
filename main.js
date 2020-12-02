@@ -22,7 +22,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	for (var i = 0; i < csv.length; ++i) {
 		csv[i].bpm = Number(csv[i]["Beats Per Minute (BPM)"]);
 		csv[i].Loudness = 28 + Number(csv[i]["Loudness (dB)"]);
-		csv[i].Length = Number(csv[i]["Length (Duration)"]);
+		csv[i].Length = Number(csv[i]["Length (Duration)"].replace(',', ''));
 		csv[i].Danceability = Number(csv[i].Danceability);
 		csv[i].Energy = Number(csv[i].Energy);
 		csv[i].Liveness = Number(csv[i].Liveness);
@@ -37,6 +37,8 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	
 	// attributes we'll use for axes
 	graphAttributes = ["bpm", "Loudness", "Length", "Danceability", "Energy", "Liveness", "Valence", "Acousticness", "Speechiness"];
+	// scales we'll use for axes (to be created)
+	graphScales = {};
   
   console.log("NUM DATA: " + csv.length);
 
@@ -56,9 +58,17 @@ d3.csv("Spotify-2000.csv", function (csv) {
         })
     }
   
-    // Create a linear scale for a given attribute
-	get_scale = function(attr) {
-		return d3.scaleLinear().domain(get_extent(attr)).range([0, spokeLength]);	
+    // // Create a linear scale for a given attribute
+	// get_scale = function(attr) {
+		// return d3.scaleLinear().domain(get_extent(attr)).range([0, spokeLength]);	
+	// }
+	
+	// add to our dictionary of scales for later use
+	get_scales = function() {
+		for (var i = 0; i < graphAttributes.length; i++) {
+			var attr = graphAttributes[i];
+			graphScales[attr] = d3.scaleLinear().domain(get_extent(attr)).range([0, spokeLength]); 
+		}
 	}
 	
 	// At what angle are we positioning this attribute?
@@ -70,8 +80,8 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	// Gets the coordinate on the x-y plane of a single attribute at a single value
     // returned as an object with attributes "x" and "y"
     get_coordinate = function(attr, value) {
-		var x = Math.cos(get_angle(attr)) * get_scale(attr)(value);
-		var y = Math.sin(get_angle(attr)) * get_scale(attr)(value);
+		var x = Math.cos(get_angle(attr)) * graphScales[attr](value);
+		var y = Math.sin(get_angle(attr)) * graphScales[attr](value);
 		
 		return [x, y];	
 	}
@@ -156,18 +166,16 @@ d3.csv("Spotify-2000.csv", function (csv) {
         .attr('class', 'labels')
 				.attr("x", function(d) {
           let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
-          return label_coordinate[0];
+          return Math.cos(angle) * (spokeLength + 3);
         })
 				.attr("y", function(d) {
           let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
-          return label_coordinate[1];
+          return Math.sin(angle) * (spokeLength + 3);
         })
 				.style("text-anchor", function(d) {
           let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
-					if (label_coordinate[0] < 0) {
+          let label_x = Math.cos(angle) * (spokeLength + 3);
+					if (label_x < 0) {
 						return "end";
 					}	
 				})
@@ -244,6 +252,9 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.y(function(d) {
 			return d[1];
 		});
+		
+	// Calculate scales
+	get_scales();
 	
 	
 	// Add paths for each row
@@ -413,6 +424,10 @@ d3.select(filters)
         })
         .style('visibility', 'hidden');
 
+		// RECALCULATE
+		get_scales();
+		
+		// REDRAW
         radar.selectAll('path')
         .transition()
         .duration(function(d) {

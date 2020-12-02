@@ -2,12 +2,13 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/> 
-		<link href="style.css" type="text/css" rel="stylesheet" />
+		<link href="style.css?we" type="text/css" rel="stylesheet" />
 		<script src="https://d3js.org/d3.v4.min.js"></script>
 		<script type="text/javascript" src="main.js"></script>	 
    	</head>
    	<body>
 	   	<div id="wrapper">
+		
 			<div id="filters"> 
 				<input type="checkbox" id="axesCheck" name="BPM" value="bpm">
 				<label class="checkLabel"> Beats Per Minute</label> <br>
@@ -25,11 +26,13 @@
 				<label class="checkLabel"> Length (Duration)</label><br>
 				<input type="checkbox" id="axesCheck" name="loud" value="Loudness">
 				<label class="checkLabel"> Loudness (dB)</label><br>
+				
+				<div id="sliderContainer">
+					<h3>Popularity</h3>
+					<input type="range" min="11" max="100" value="50" id="slider">
+				</div>
 			</div>
-			<div id="sliderContainer">
-				<h3>Popularity</h3>
-				<input type="range" min="11" max="100" value="50" id="slider">
-			</div>
+
 			<div id="chart1">
 	    	</div>
 	   	</div>
