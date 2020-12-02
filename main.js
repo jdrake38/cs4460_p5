@@ -4,17 +4,17 @@ var numRings = 10; // the number of rings in the radar chart
 var chart1_cx = width / 2;
 var chart1_cy = height / 2;
 var spokeLength = 300;
+/* The color spectrum for chart1 */
 var c1_colors = ["#66bd70","#65bc6f","#63bc6e","#62bb6e","#60ba6d","#5eb96c","#5db86b","#5bb86a","#5ab769","#58b668","#57b568","#56b467","#54b466","#53b365","#51b264","#50b164","#4eb063","#4daf62","#4caf61","#4aae61","#49ad60","#48ac5f","#46ab5e","#45aa5d","#44a95d","#42a85c","#41a75b","#40a75a","#3fa65a","#3ea559","#3ca458","#3ba357","#3aa257","#39a156","#38a055","#379f54","#369e54","#359d53","#349c52","#339b51","#329a50","#319950","#30984f","#2f974e","#2e964d","#2d954d","#2b944c","#2a934b","#29924a","#28914a","#279049","#268f48","#258f47","#248e47","#238d46","#228c45","#218b44","#208a43","#1f8943","#1e8842","#1d8741","#1c8640","#1b8540","#1a843f","#19833e","#18823d","#17813d","#16803c","#157f3b","#147e3a","#137d3a","#127c39","#117b38","#107a37","#107937","#0f7836","#0e7735","#0d7634","#0c7534","#0b7433","#0b7332","#0a7232","#097131","#087030","#086f2f","#076e2f","#066c2e","#066b2d","#056a2d","#05692c","#04682b","#04672b","#04662a","#03642a","#036329","#026228","#026128","#026027","#025e27","#015d26","#015c25","#015b25","#015a24","#015824","#015723","#005623","#005522","#005321","#005221","#005120","#005020","#004e1f","#004d1f","#004c1e","#004a1e","#00491d","#00481d","#00471c","#00451c","#00441b"]
-//console.log("NUM COLORS: " + c1_colors.length);
 
+/* There aren't enough colors in the spectrum for all the data, so this adds each color 17 times
+consecutively to the colors array. This is the array used to color the data in the graph */
 var colors = [];
 for (var i = c1_colors.length-1; i >= 0; i--) {
   for (var j = 0; j < 17; j++) {
     colors.push(c1_colors[i]);
   }
 }
-
-console.log("COLORS LENGTH: " + colors.length);
 
 d3.csv("Spotify-2000.csv", function (csv) {
 	
@@ -39,28 +39,15 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	graphAttributes = ["bpm", "Loudness", "Length", "Danceability", "Energy", "Liveness", "Valence", "Acousticness", "Speechiness"];
 	// scales we'll use for axes (to be created)
 	graphScales = {};
-  
-  console.log("NUM DATA: " + csv.length);
 
-  // get the genres
+  // get the genres of the music to use later?
   var genres = Array.from(d3.map(csv, function(d) {
     return d["Top Genre"];
   }).keys()
   );
 
-  // The average data object of all the attributes
- /* var avg = {
-    bpm: 0,
-    Loudness: 0,
-    Length: 0,
-    Danceability: 0,
-    Energy: 0,
-    Liveness: 0,
-    Valence: 0,
-    Acousticness: 0,
-    Speechiness: 0
-  } */
 
+  // Avg is a data element containing the average value for each attribute
   var avg = new Object();
 
   for (var a = 0; a < graphAttributes.length; a++) {
@@ -70,8 +57,6 @@ d3.csv("Spotify-2000.csv", function (csv) {
     }
     avg[graphAttributes[a]] = sum / ting.length;
   } 
-
- // console.log(avg);
 
 	
 	// ------------------------- FUN WITH FUNCTIONS ------------------------------- //
@@ -109,19 +94,25 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		var y = Math.sin(get_angle(attr)) * graphScales[attr](value);
 		
 		return [x, y];	
-	}
-	
-	// turn an observation (row) into a path d attribute
-	get_path = function(data_point) {
-		var coordinates = [];
+  }
+  
+  // gets the coordinates of the specified path returned in a 2d array, with 
+  // the first element = x coordinate, second element = y coordinate for each point
+  get_path_coordinates = function(data_point) {
+    var coordinates = [];
 		for (var i = 0; i < graphAttributes.length; i++) {
 			var attr = graphAttributes[i];
       var angle = get_angle(attr);
       //console.log("attr: " + attr);
       //console.log("data_point[attr]: " + data_point[attr]);
 			coordinates.push(get_coordinate(attr, data_point[attr]));
-		}
-
+    }
+    return coordinates;
+  }
+	
+	// turn an observation (row) into a path d attribute
+	get_path = function(data_point) {
+		var coordinates = get_path_coordinates(data_point);
 		var path = "";
 		for (var i = 0; i < coordinates.length; i++) {
 			if (i == 0) {
@@ -150,17 +141,11 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.append("svg:svg")
 		.attr("width", width)
     .attr("height", height);
-    
-
-	
+  
 	// create group to hold everybody
 	radar = chart1.append("g")
     .attr("transform", "translate(" + chart1_cx + ", " + chart1_cy + ")");
-  
-  var axes = chart1.append("g");
     
-		
-	
 	// function to draw the axis them
 	// labels: attributes for which to draw axis
 	function drawAxes(labels) {
@@ -214,44 +199,6 @@ d3.csv("Spotify-2000.csv", function (csv) {
 				.text(function(d) {
           return d;
         });
-
-	
-	/*	for (var i = 0; i < labels.length; i++) {
-			
-			// get attribute name, coordinates
-			let label = labels[i];
-			let angle = get_angle(label);
-
-			let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
-			let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	  
-
-			//draw axis line
-      radar.append("line")
-        .selectAll(".line")
-        .data(graphAttributes)
-        .enter()
-				.attr("x1", 0)
-				.attr("y1", 0)
-				.attr("x2", line_coordinate[0])
-				.attr("y2", line_coordinate[1])
-				.attr("stroke","black");
-
-			//write axis label
-			radar.append("text")
-				.attr("x", label_coordinate[0])
-				.attr("y", label_coordinate[1])
-				.style("text-anchor", function() {
-					if (label_coordinate[0] < 0) {
-						return "end";
-					}	
-				})
-				// .style("dominant-baseline", function() {
-					// if (label_coordinate[1] > 0) {
-					    // return "hanging";	
-					// }
-				// })
-				.text(label);
-		} */
 	}
 	
 	drawAxes(graphAttributes);
@@ -265,10 +212,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
     }
 	
 
-
   // ----------------------------- DRAWING DATA ---------------------------- //
-  
-
 	
 	// Make the data itself
 	// I'm not sure...is this still being used?
@@ -287,23 +231,38 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	// Add paths for each row
 	radar.append("g")
     .selectAll("path")
-    .attr('class', 'dataPath')
 		.data(csv)
 		.enter()
-		.append("path")
+    .append("path")
+      .attr('class', 'dataPath')
 			.attr("d", function(d) {return get_path(d);})
       .attr("fill", function(d, i) { return colors[i]})
-      //.attr("fill", "green")
-      .attr("opacity", 0.4);
+      .attr("opacity", 0.6);
 
+    // Add the average path and color it blue
     radar.append("path")
       .attr('class', 'avgPath')
       .attr("d", function() {
-        console.log(avg);
         return get_path(avg);
       })
-      .style('stroke', 'darkgreen')
-      .style('fill', 'none');
+      .style('fill', '#0400ff')
+      .style('opacity', '0.3');
+
+    // Adds circles for all the points of the average graph on the axes
+    radar.append('g')
+      .selectAll('.avgPoint')
+      .data(graphAttributes)
+      .enter()
+      .append('circle')
+        .attr('class', 'avgPoint')
+        .attr('cx', function(d, i) {
+          return get_path_coordinates(avg)[i][0];
+        })
+        .attr('cy', function(d, i) {
+          return get_path_coordinates(avg)[i][1];
+        })
+        .attr('r', 7)
+        .style('fill', '#0400ff');
       
 
   // function getPathCoordinates(data_point){
@@ -334,6 +293,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 
 // ----------------------------------- BUTTON LOGIC ------------------------------------
 
+// Add the Set Axes button to DOM and set its onClick function
 d3.select(filters)
     .append('p')
     .append('button')
@@ -348,9 +308,8 @@ d3.select(filters)
         }
       }
       graphAttributes = selected;
-     // console.log(selected);
 
-      // MOVE SELECTED AXES
+      // MOVE THE SELECTED AXES
       radar.selectAll('line')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
@@ -378,7 +337,7 @@ d3.select(filters)
           return line_coordinate[1];
         });
 
-        // REMOVE NOT SELECTED AXES
+        // REMOVE THE NOT SELECTED AXES
         radar.selectAll('line')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
@@ -398,7 +357,7 @@ d3.select(filters)
         .attr("x2", 0)
         .attr("y2", 0);
         
-        // MOVE SELECTED LABELS
+        // MOVE THE SELECTED LABELS
         radar.selectAll('.labels')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
@@ -442,7 +401,7 @@ d3.select(filters)
         })
         .style('visibility', 'visible');
 
-        // REMOVE NOT SELECTED LABELS
+        // REMOVE THE NOT SELECTED LABELS
         radar.selectAll('.labels')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
@@ -474,10 +433,11 @@ d3.select(filters)
            return 800;
         })
         .attr('d', function(d) {
+          console.log("hereeee");
           return get_path(d);
         });
 
-      // draw average path
+      // REDRAW AVERAGE PATH
       radar.select('.avgPath')
       .transition()
         .duration(function(d) {
@@ -488,9 +448,56 @@ d3.select(filters)
         })
       .attr("d", function() {return get_path(avg);}); 
 
+      // REDRAW NEW POINTS ON AVERAGE PATH
+      radar.selectAll('.avgPoint')
+      .filter(function(d) {
+        for (var i = 0; i < graphAttributes.length; i++) {
+          if (d == graphAttributes[i]) {
+            return true;
+          }
+        }
+        return false;
+      })
+      .transition()
+        .duration(function(d) {
+            return 800;
+        })
+        .delay(function(d) {
+           return 800;
+        })
+        .attr('cx', function(d, i) {
+          return get_path_coordinates(avg)[i][0];
+        })
+        .attr('cy', function(d, i) {
+          return get_path_coordinates(avg)[i][1];
+        })
+        .style('visibility', 'visible');
+
+        // REMOVE THE POINTS FOR AXES NO LONGER ON THE CHART
+        radar.selectAll('.avgPoint')
+          .filter(function(d) {
+            for (var i = 0; i < graphAttributes.length; i++) {
+              if (d == graphAttributes[i]) {
+                return false;
+              }
+            }
+            return true;
+          })
+          .transition()
+            .duration(function(d) {
+                return 800;
+            })
+            .delay(function(d) {
+              return 800;
+            })
+          .style('visibility', 'hidden');
+
     })
 
     // ----------------------------- SLIDER FUNCTIONS -------------------------
+    // THIS NEEDS TO BE IMPLEMENTED!
+
+
     function popFilter() {
       let value = d3.select("#slider").value;
       //console.log(value);
