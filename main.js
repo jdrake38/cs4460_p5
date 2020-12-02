@@ -383,7 +383,8 @@ d3.select(filters)
 				// })
 				.text(function(d) {
           return d;
-        });
+        })
+        .style('visibility', 'visible');
 
         // REMOVE NOT SELECTED LABELS
         radar.selectAll('.labels')
@@ -402,7 +403,7 @@ d3.select(filters)
         .delay(function(d) {
            return 800;
         })
-        .style('display', 'none');
+        .style('visibility', 'hidden');
 
 
         /*radar.selectAll('line')
