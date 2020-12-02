@@ -1,5 +1,19 @@
 body {
   font: 12px sans-serif;
+  background-color: black;
+}
+
+.checkLabel {
+  color: white;
+}
+
+.labels {
+  stroke: gray;
+  fill: white;
+}
+
+.axis {
+  stroke: gray;
 }
 
 #chart1 {

@@ -126,6 +126,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
         .data(graphAttributes)
         .enter()
         .append("line")
+        .attr('class', 'axis')
 				.attr("x1", 0)
 				.attr("y1", 0)
 				.attr("x2", function(d) {
@@ -141,7 +142,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 				.attr("stroke","black");
 
         radar.append("g")
-        .selectAll("#labels")
+        .selectAll(".labels")
         .data(graphAttributes)
         .enter()
         .append("text")
