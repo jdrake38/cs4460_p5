@@ -16,6 +16,7 @@ for (var i = c1_colors.length-1; i >= 0; i--) {
   }
 }
 
+
 d3.csv("Spotify-2000.csv", function (csv) {
 	
     // appropriate variable types
@@ -23,11 +24,11 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		csv[i].bpm = Number(csv[i]["Beats Per Minute (BPM)"]);
 		csv[i].Loudness = 28 + Number(csv[i]["Loudness (dB)"]);
 		csv[i].Length = Number(csv[i]["Length (Duration)"].replace(',', ''));
-		csv[i].Danceability = Number(csv[i].Danceability);
-		csv[i].Energy = Number(csv[i].Energy);
-		csv[i].Liveness = Number(csv[i].Liveness);
+    csv[i].Danceability = Number(csv[i].Danceability);
+    csv[i].Energy = Number(csv[i].Energy);
+    csv[i].Liveness = Number(csv[i].Liveness);
 		csv[i].Valence = Number(csv[i].Valence);
-		csv[i].Acousticness = Number(csv[i].Acousticness);
+    csv[i].Acousticness = Number(csv[i].Acousticness);
 		csv[i].Speechiness = Number(csv[i].Speechiness);
 		csv[i].Popularity = Number(csv[i].Popularity);
 	}
@@ -45,10 +46,8 @@ d3.csv("Spotify-2000.csv", function (csv) {
     return d["Top Genre"];
   }).keys()
   );
-
-
   // Avg is a data element containing the average value for each attribute
-  var avg = new Object();
+  var avg = [];
 
   for (var a = 0; a < graphAttributes.length; a++) {
     var sum = 0;
@@ -58,8 +57,45 @@ d3.csv("Spotify-2000.csv", function (csv) {
     avg[graphAttributes[a]] = sum / ting.length;
   } 
 
-	
-	// ------------------------- FUN WITH FUNCTIONS ------------------------------- //
+  // ------------------------- FUN WITH FUNCTIONS ------------------------------- //
+
+  // At what angle are we positioning this attribute?
+	/*get_angle = function(attr) {
+		var i = graphAttributes.indexOf(attr);
+		return (Math.PI / 2) + (2 * Math.PI * i / graphAttributes.length);
+  }  */
+  
+  get_angle = function(attr, index) {
+		return (Math.PI / 2) + (2 * Math.PI * index / graphAttributes.length);
+	}
+
+  var axesObjs = {};
+  for (var i = 0; i < graphAttributes.length; i++) {
+    var key = graphAttributes[i];
+    var ang = get_angle(key, i);
+    let line_coordinate = [Math.cos(ang) * spokeLength, Math.sin(ang) * spokeLength];
+    axesObjs[key] = {
+      angle: ang,
+      coordinates: line_coordinate,
+      index: i+1
+    };
+  };
+
+  var axes = d3.entries(axesObjs);
+
+  function setAxes(attributes) {
+    for (var i = 0; i < axes.length; i++) {
+      for (var j = 0; j < attributes.length; j++) {
+        if (axes[i].key == attributes[j]) {
+          var ang = get_angle(axes[i].key, j);
+          let line_coordinate = [Math.cos(ang) * spokeLength, Math.sin(ang) * spokeLength];
+          axes[i].value.coordinates = line_coordinate;
+          axes[i].value.angle = ang;
+          axes[i].value.index = j+1;
+        }
+      }
+    }
+  }
 	
 	// Finding the extent of an attribute [min,max]
     get_extent = function(attr) {
@@ -81,17 +117,18 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		}
 	}
 	
-	// At what angle are we positioning this attribute?
-	get_angle = function(attr) {
-		var i = graphAttributes.indexOf(attr);
-		return (Math.PI / 2) + (2 * Math.PI * i / graphAttributes.length);
-	}
 	
 	// Gets the coordinate on the x-y plane of a single attribute at a single value
     // returned as an object with attributes "x" and "y"
     get_coordinate = function(attr, value) {
-		var x = Math.cos(get_angle(attr)) * graphScales[attr](value);
-		var y = Math.sin(get_angle(attr)) * graphScales[attr](value);
+    let angle = 0;
+    axes.forEach(function(axis) {
+      if (axis.key == attr) {
+        angle = axis.value.angle;
+      }
+    })
+		var x = Math.cos(angle) * graphScales[attr](value);
+		var y = Math.sin(angle) * graphScales[attr](value);
 		
 		return [x, y];	
   }
@@ -102,9 +139,6 @@ d3.csv("Spotify-2000.csv", function (csv) {
     var coordinates = [];
 		for (var i = 0; i < graphAttributes.length; i++) {
 			var attr = graphAttributes[i];
-      var angle = get_angle(attr);
-      //console.log("attr: " + attr);
-      //console.log("data_point[attr]: " + data_point[attr]);
 			coordinates.push(get_coordinate(attr, data_point[attr]));
     }
     return coordinates;
@@ -129,11 +163,12 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		}
 		
 		return path;
-	}
+  }
+  
 	
 	
-	// -------------------------- SVG AND AXIS SETUP ------------------------------- //
-	
+  // -------------------------- SVG AND AXIS SETUP ------------------------------- //
+
 	
 	//Create svg for chart 1
 	var chart1 = d3
@@ -147,10 +182,27 @@ d3.csv("Spotify-2000.csv", function (csv) {
     .attr("transform", "translate(" + chart1_cx + ", " + chart1_cy + ")");
     
 	// function to draw the axis them
-	// labels: attributes for which to draw axis
+  // labels: attributes for which to draw axis
+  
 	function drawAxes(labels) {
 
     radar.append("g")
+        .selectAll(".line")
+        .data(axes)
+        .enter()
+        .append("line")
+        .attr('class', 'axis')
+				.attr("x1", 0)
+				.attr("y1", 0)
+				.attr("x2", function(d) {
+          return d.value.coordinates[0];
+        })
+				.attr("y2", function(d) {
+          return d.value.coordinates[1];
+        })
+				.attr("stroke","black");
+
+   /* radar.append("g")
         .selectAll(".line")
         .data(graphAttributes)
         .enter()
@@ -168,9 +220,31 @@ d3.csv("Spotify-2000.csv", function (csv) {
           let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
           return line_coordinate[1];
         })
-				.attr("stroke","black");
-
+        .attr("stroke","black"); */
+        
         radar.append("g")
+        .selectAll(".labels")
+        .data(axes)
+        .enter()
+        .append("text")
+        .attr('class', 'labels')
+				.attr("x", function(d) {
+          return Math.cos(d.value.angle) * (spokeLength + 3);
+        })
+				.attr("y", function(d) {
+          return Math.sin(d.value.angle) * (spokeLength + 3);
+        })
+				.style("text-anchor", function(d) {
+          let label_x = Math.cos(d.value.angle) * (spokeLength + 3);
+					if (label_x < 0) {
+						return "end";
+					}	
+				}) 
+				.text(function(d) {
+          return d.key;
+        });
+
+        /*radar.append("g")
         .selectAll(".labels")
         .data(graphAttributes)
         .enter()
@@ -190,15 +264,10 @@ d3.csv("Spotify-2000.csv", function (csv) {
 					if (label_x < 0) {
 						return "end";
 					}	
-				})
-				// .style("dominant-baseline", function() {
-					// if (label_coordinate[1] > 0) {
-					    // return "hanging";	
-					// }
-				// })
+				}) 
 				.text(function(d) {
           return d;
-        });
+        }); */
 	}
 	
 	drawAxes(graphAttributes);
@@ -248,22 +317,44 @@ d3.csv("Spotify-2000.csv", function (csv) {
       .style('fill', '#0400ff')
       .style('opacity', '0.3');
 
+  
+  
+  // create the tooltip
+   var tooltip = d3.select("body")
+   .append("div")
+   .attr("class", "tooltip")
+   .style("opacity", 0);
+      
+
     // Adds circles for all the points of the average graph on the axes
     radar.append('g')
       .selectAll('.avgPoint')
-      .data(graphAttributes)
+      .data(axes)
       .enter()
       .append('circle')
         .attr('class', 'avgPoint')
-        .attr('cx', function(d, i) {
-          return get_path_coordinates(avg)[i][0];
+        .attr('cx', function(d) {
+          return get_coordinate(d.key, avg[d.key])[0];
         })
-        .attr('cy', function(d, i) {
-          return get_path_coordinates(avg)[i][1];
+        .attr('cy', function(d) {
+          return get_coordinate(d.key, avg[d.key])[1];
         })
         .attr('r', 7)
-        .style('fill', '#0400ff');
-      
+        .style('fill', '#0400ff')
+        .on("mouseover", function(d) {
+          d3.select(this).attr('r', 10);
+          d3.select('.tooltip').html("<p>" + d.key + "</p><p>Average: "
+            + Math.round(avg[d.key])  + "</p>")
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px")
+            .transition().duration(200).style("opacity", 0.75);
+        })
+        .on("mouseout", function(d) {
+          d3.select(this).attr('r', 7);
+          d3.select('.tooltip').transition().duration(200).style("opacity", 0);
+        });
+
+
 
   // function getPathCoordinates(data_point){
     // let coordinates = [];
@@ -309,11 +400,13 @@ d3.select(filters)
       }
       graphAttributes = selected;
 
+      setAxes(graphAttributes);
+ 
       // MOVE THE SELECTED AXES
       radar.selectAll('line')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
-            if (d == graphAttributes[i]) {
+            if (d.key == graphAttributes[i]) {
               return true;
             }
           }
@@ -327,21 +420,17 @@ d3.select(filters)
            return 800;
         })
         .attr("x2", function(d) {
-          let angle = get_angle(d);
-          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
-          return line_coordinate[0];
+          return d.value.coordinates[0];
         })
 				.attr("y2", function(d) {
-          let angle = get_angle(d);
-          let line_coordinate = [Math.cos(angle) * spokeLength, Math.sin(angle) * spokeLength]
-          return line_coordinate[1];
+          return d.value.coordinates[1];
         });
 
         // REMOVE THE NOT SELECTED AXES
         radar.selectAll('line')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
-            if (d == graphAttributes[i]) {
+            if (d.key == graphAttributes[i]) {
               return false;
             }
           }
@@ -361,7 +450,7 @@ d3.select(filters)
         radar.selectAll('.labels')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
-            if (d == graphAttributes[i]) {
+            if (d.key == graphAttributes[i]) {
               return true;
             }
           }
@@ -375,18 +464,15 @@ d3.select(filters)
            return 800;
         })
         .attr("x", function(d) {
-          let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          let label_coordinate = [Math.cos(d.value.angle) * (spokeLength + 3), Math.sin(d.value.angle) * (spokeLength + 3)];	
           return label_coordinate[0];
         })
 				.attr("y", function(d) {
-          let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          let label_coordinate = [Math.cos(d.value.angle) * (spokeLength + 3), Math.sin(d.value.angle) * (spokeLength + 3)];	
           return label_coordinate[1];
         })
 				.style("text-anchor", function(d) {
-          let angle = get_angle(d);
-          let label_coordinate = [Math.cos(angle) * (spokeLength + 3), Math.sin(angle) * (spokeLength + 3)];	
+          let label_coordinate = [Math.cos(d.value.angle) * (spokeLength + 3), Math.sin(d.value.angle) * (spokeLength + 3)];	
 					if (label_coordinate[0] < 0) {
 						return "end";
 					}	
@@ -397,7 +483,7 @@ d3.select(filters)
 					// }
 				// })
 				.text(function(d) {
-          return d;
+          return d.key;
         })
         .style('visibility', 'visible');
 
@@ -405,7 +491,7 @@ d3.select(filters)
         radar.selectAll('.labels')
         .filter(function(d) {
           for (var i = 0; i < graphAttributes.length; i++) {
-            if (d == graphAttributes[i]) {
+            if (d.key == graphAttributes[i]) {
               return false;
             }
           }
@@ -419,6 +505,7 @@ d3.select(filters)
            return 800;
         })
         .style('visibility', 'hidden');
+        
 
 		// RECALCULATE
 		get_scales();
@@ -433,7 +520,6 @@ d3.select(filters)
            return 800;
         })
         .attr('d', function(d) {
-          console.log("hereeee");
           return get_path(d);
         });
 
@@ -452,7 +538,7 @@ d3.select(filters)
       radar.selectAll('.avgPoint')
       .filter(function(d) {
         for (var i = 0; i < graphAttributes.length; i++) {
-          if (d == graphAttributes[i]) {
+          if (d.key == graphAttributes[i]) {
             return true;
           }
         }
@@ -465,11 +551,11 @@ d3.select(filters)
         .delay(function(d) {
            return 800;
         })
-        .attr('cx', function(d, i) {
-          return get_path_coordinates(avg)[i][0];
+        .attr('cx', function(d) {
+          return get_coordinate(d.key, avg[d.key])[0];
         })
-        .attr('cy', function(d, i) {
-          return get_path_coordinates(avg)[i][1];
+        .attr('cy', function(d) {
+          return get_coordinate(d.key, avg[d.key])[1];
         })
         .style('visibility', 'visible');
 
@@ -477,7 +563,7 @@ d3.select(filters)
         radar.selectAll('.avgPoint')
           .filter(function(d) {
             for (var i = 0; i < graphAttributes.length; i++) {
-              if (d == graphAttributes[i]) {
+              if (d.key == graphAttributes[i]) {
                 return false;
               }
             }
@@ -503,9 +589,12 @@ d3.select(filters)
       //console.log(value);
     }
 
-    d3.select("#slider")
-      .attr('onchange', function() {
+    d3.select('#slider')
+      .attr('oninput', function() {
+       // console.log("HERE");
+        popFilter();
       });
+
 
 
 }); // end of main function
