@@ -9,11 +9,13 @@ h3 {
 
 .checkLabel {
   color: white;
+  font-size: 20px;
 }
 
-.labels {
+text {
   stroke: gray;
   fill: white;
+  font-size: 20;
 }
 
 .tooltip {
@@ -42,5 +44,17 @@ circle {
 	fill: none;
 	stroke: gray;
 }
+
+.hidden {
+	display: none;
+}
+
+
+#topSongs {
+  height: 590px;
+  width: 350px;
+  overflow-y: auto;  
+  background-color: #828282;
+} 
 
 
