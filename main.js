@@ -319,7 +319,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		// get currently displayed songs
 		var current = ting.map(function(a) {
 			var song = a.Artist + " - " + a.Title;
-			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + a.Title);
+			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + " " + a.Title);
 			return songLink;
 		});
 		
@@ -573,7 +573,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		// get currently displayed songs
 		var current = ting.filter(a => a.Popularity >= threshold).map(function(a) {
 			var song = a.Artist + " - " + a.Title;
-			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + a.Title);
+			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + " " + a.Title);
 			return songLink;
 		});
 		
