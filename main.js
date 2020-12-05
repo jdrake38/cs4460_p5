@@ -221,7 +221,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 						return "end";
 					}	
 				}) 
-				.style("font-size", 17)
+				.style("font-size", 16)
 				.text(function(d) {
           return d.key;
         });
