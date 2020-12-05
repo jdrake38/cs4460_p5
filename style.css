@@ -1,6 +1,19 @@
+@font-face {
+  font-family: proxima-nova;
+  src: url(FontsFree-Net-proxima_nova_reg-webfont.ttf);
+}
+
 body {
-  font: 12px sans-serif;
-  background-color: black;
+  font: 12px proxima-nova;
+  background-color: #191414;
+}
+
+#header {
+  color: white;
+}
+
+head {
+  color: white;
 }
 
 h3 {
@@ -9,18 +22,22 @@ h3 {
 
 .checkLabel {
   color: white;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 text {
-  stroke: gray;
+  stroke: white;
   fill: white;
-  font-size: 20;
+  font-size: 16;
+}
+
+footer {
+  color: gray;
 }
 
 .tooltip {
   background: grey;
-  color: black;
+  color: white;
   border-radius: 5px;
   position: absolute;
   padding: 8px;
@@ -37,7 +54,8 @@ text {
 }
 
 #filters {
-	float: left;
+  float: left;
+  margin-top: 10px;
 }
 
 circle {
