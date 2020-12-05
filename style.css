@@ -86,6 +86,7 @@ circle {
   background-color: #333333;
   border-radius: 5px;
   margin-top: -20px;
+  text-align: left;
 } 
 
 #topSongs a {

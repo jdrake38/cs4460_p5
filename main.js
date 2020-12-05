@@ -309,6 +309,9 @@ d3.csv("Spotify-2000.csv", function (csv) {
           d3.select('.tooltip').transition().duration(200).style("opacity", 0);
         });
 		
+		ting.sort(function(a, b){
+			return b.Popularity-a.Popularity;
+		})
 		
 		// SHOW DISPLAY THINGS
 		document.getElementById("numSongs").innerHTML = "Now displaying " + ting.length + " songs";
