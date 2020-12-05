@@ -82,6 +82,14 @@ circle {
   border-radius: 5px;
 } 
 
+#topSongs a {
+  color: white;
+}
+
+#topSongs a:hover {
+  color: gray;
+}
+
 .dataPath {
   -webkit-transition: all 1s ease-in-out;
   -moz-transition: all 1s ease-in-out;

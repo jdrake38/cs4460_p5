@@ -317,7 +317,11 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		var list = document.getElementById("topSongsList");
 		
 		// get currently displayed songs
-		var current = ting.map(a => a.Artist + " - " + a.Title);
+		var current = ting.map(function(a) {
+			var song = a.Artist + " - " + a.Title;
+			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + a.Title);
+			return songLink;
+		});
 		
 		// post am
 		for (var i = 0; i < current.length; i++) {
@@ -567,7 +571,11 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		}
 		
 		// get currently displayed songs
-		var current = ting.filter(a => a.Popularity >= threshold).map(a => a.Artist + " - " + a.Title);
+		var current = ting.filter(a => a.Popularity >= threshold).map(function(a) {
+			var song = a.Artist + " - " + a.Title;
+			var songLink = song.link("https://open.spotify.com/search/" + a.Artist + a.Title);
+			return songLink;
+		});
 		
 		// post am
 		for (var i = 0; i < current.length; i++) {
