@@ -9,7 +9,15 @@ body {
 }
 
 #header {
-  color: white;
+  color: #1DB954;
+  font-size: 16px;
+}
+
+#header-text {
+  position: absolute;
+  font-weight: bold;
+  margin-left: 150px;
+  margin-top: -30px;
 }
 
 head {
@@ -28,7 +36,6 @@ h3 {
 text {
   stroke: white;
   fill: white;
-  font-size: 16;
 }
 
 footer {
@@ -67,12 +74,20 @@ circle {
 	display: none;
 }
 
-
 #topSongs {
   height: 590px;
   width: 350px;
   overflow-y: auto;  
-  background-color: #828282;
+  background-color: #333333;
+  border-radius: 5px;
 } 
+
+.dataPath {
+  -webkit-transition: all 1s ease-in-out;
+  -moz-transition: all 1s ease-in-out;
+  -ms-transition: all 1s ease-in-out;
+  -o-transition: all 1s ease-in-out;
+  transition: all 1s ease-in-out;
+}
 
 

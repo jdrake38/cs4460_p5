@@ -526,22 +526,17 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		// REMOVE UNPOPULAR SONGS
 		d3.selectAll(".dataPath")
 			.transition()
-			.duration(function(d) {
-                return duration_length;
-            })
-            .delay(function(d) {
-              return delay_length;
-            })
+			.attr('opacity', function(d) {
+				if (d.Popularity < threshold) {
+					return 0;
+				} else {
+					return 0.6;
+				}
+			});
 			// .classed("hidden", function(d) {
 				// return d.Popularity < threshold;
 			// })
-			.style('visibility', function(d) {
-				if (d.Popularity < threshold) {
-					return 'hidden'
-				} else {
-					return 'visible'
-				}
-			})
+			
 			
 		// CHANGE AVERAGE PATH
 		// Avg is a data element containing the average value for each attribute
@@ -594,6 +589,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		.append('p')
 		.append('button')
 		.style("border", "1px solid black")
+		.style("font-family", "proxima-nova")
 		.text('Set Axes')
 		.on('click', redraw_axes)
 
