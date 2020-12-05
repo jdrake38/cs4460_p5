@@ -58,6 +58,7 @@ footer {
 
 #chart1 {
     float: left;
+    margin-top: -25px;
 }
 
 #filters {
@@ -80,6 +81,7 @@ circle {
   overflow-y: auto;  
   background-color: #333333;
   border-radius: 5px;
+  margin-top: -20px;
 } 
 
 #topSongs a {
