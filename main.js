@@ -526,11 +526,11 @@ d3.csv("Spotify-2000.csv", function (csv) {
 		// REMOVE UNPOPULAR SONGS
 		d3.selectAll(".dataPath")
 			.transition()
-			.attr('opacity', function(d) {
+			.attr('transform', function(d) {
 				if (d.Popularity < threshold) {
-					return 0;
+					return 'scale(0)';
 				} else {
-					return 0.6;
+					return 'scale(1)';
 				}
 			});
 			// .classed("hidden", function(d) {
