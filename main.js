@@ -593,7 +593,7 @@ d3.csv("Spotify-2000.csv", function (csv) {
 	}
 
 
-    // ----------------------------- SLIDER FUNCTIONS -------------------------
+    // ----------------------------- FILTER/ENCODING FUNCTIONS -------------------------
 
 	// Add the Set Axes button to DOM and set its onClick function
 	d3.select(filters)
